@@ -1,4 +1,9 @@
+using WeddingInvite.Api.Models;
+
 var builder = WebApplication.CreateBuilder(args);
+//Register EventPolicy from appsettings.json
+builder.Services.Configure<EventPolicy>(builder.Configuration.GetSection("EventPolicy"));
+
 
 // Add services to the container.
 

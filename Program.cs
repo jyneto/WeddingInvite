@@ -1,3 +1,6 @@
+using Microsoft.EntityFrameworkCore;
+using System;
+using WeddingInvite.Api.Data;
 using WeddingInvite.Api.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -6,6 +9,11 @@ builder.Services.Configure<EventPolicy>(builder.Configuration.GetSection("EventP
 
 
 // Add services to the container.
+builder.Services.AddDbContext<WeddingDbContext>(options =>
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection")
+    )
+);
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi

@@ -3,9 +3,9 @@ using WeddingInvite.Api.Models;
 
 namespace WeddingInvite.Api.Data
 {
-    public class WeddingContext : DbContext
+    public class WeddingDbContext : DbContext
     {
-        public WeddingContext(DbContextOptions<WeddingContext> options) : base(options)
+        public WeddingDbContext(DbContextOptions<WeddingDbContext> options) : base(options)
         {
         }
         public DbSet<Guest> Guests { get; set; }
@@ -17,6 +17,16 @@ namespace WeddingInvite.Api.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<MenuItem>()
+                 .Property(m => m.Price)
+                 .HasColumnType("decimal(18,2)");
+
+            modelBuilder.Entity<Guest>()
+            .HasIndex(e => e.Email)
+            .IsUnique();
+
+
             modelBuilder.Entity<Table>()
                 .HasIndex(t => t.TableNumber)
                 .IsUnique();
@@ -26,6 +36,8 @@ namespace WeddingInvite.Api.Data
 
             modelBuilder.Entity<Admin>()
                 .HasData(new Admin{Id = 1,UserName = "admin",PasswordHash = "AQAAAA"});
+
+
         }
     }
 }

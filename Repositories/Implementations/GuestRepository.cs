@@ -7,8 +7,8 @@ namespace WeddingInvite.Api.Repositories.Implementations
 {
     public class GuestRepository : IGuestRepository
     {
-        private readonly WeddingContext _context;
-        public GuestRepository(WeddingContext context)
+        private readonly WeddingDbContext _context;
+        public GuestRepository(WeddingDbContext context)
         {
             _context = context;
         }

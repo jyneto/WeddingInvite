@@ -7,8 +7,8 @@ namespace WeddingInvite.Api.Repositories.Implementations
 {
     public class MenuRepository : IMenuRepository
     {
-        private readonly WeddingContext _context;
-        public MenuRepository(WeddingContext context)
+        private readonly WeddingDbContext _context;
+        public MenuRepository(WeddingDbContext context)
         {
             _context = context;
         }

@@ -6,8 +6,8 @@ namespace WeddingInvite.Api.Repositories.Implementations
 {
     public class AdminRepository : IAdminRepository
     {
-        private readonly WeddingContext _context;
-        public AdminRepository(WeddingContext context)
+        private readonly WeddingDbContext _context;
+        public AdminRepository(WeddingDbContext context)
         {
             _context = context;
         }

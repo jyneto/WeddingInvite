@@ -6,8 +6,8 @@ namespace WeddingInvite.Api.Repositories.Implementations
 {
     public class BookingRepository : IBookingRespository
     {
-        private readonly WeddingContext _context;
-        public BookingRepository(WeddingContext context)
+        private readonly WeddingDbContext _context;
+        public BookingRepository(WeddingDbContext context)
         {
             _context = context;
         }

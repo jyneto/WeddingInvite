@@ -8,8 +8,8 @@ namespace WeddingInvite.Api.Repositories.Implementations
 {
     public class TableRepository : ITableRespiratory
     {
-        private readonly WeddingContext _context;
-        public TableRepository(WeddingContext context)
+        private readonly WeddingDbContext _context;
+        public TableRepository(WeddingDbContext context)
         {
             _context = context;
         }

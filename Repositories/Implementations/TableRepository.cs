@@ -33,6 +33,11 @@ namespace WeddingInvite.Api.Repositories.Implementations
             return false;
         }
 
+        public async Task<Table?> GetByIdAsync(int id)
+        {
+            return await _context.Tables.FindAsync(id);
+        }
+
         public async Task<List<Table>> GetAllTableAsync()
         {
             var table = await _context.Tables.ToListAsync();

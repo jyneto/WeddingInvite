@@ -6,7 +6,7 @@ namespace WeddingInvite.Api.Services.Interfaces
     {
         Task<List<MenuItemGetDTO>> GetAllItemsAsync();
         Task<MenuItemGetDTO?> GetItemByIdAsync(int id);
-        Task<int> AddItemAsync(MenuItemGetDTO menuItemRequestDTO);
+        Task<int> AddItemAsync(MenuItemCreateDTO menuItemCreateDTO);
         Task<bool> UpdateItemAsync(MenuItemGetDTO menuItemRequestDTO);
         Task<bool> DeleteItemAsync(int id);
 

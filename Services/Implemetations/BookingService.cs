@@ -24,7 +24,24 @@ namespace WeddingInvite.Api.Services.Implemetations
 
         private TimeSpan Duration => TimeSpan.FromMinutes(_policy.DurationMinutes);
         public async Task<int> AddBookingAsync(BookingCreateDTO bookingRequestDTO)
-        {
+        {   var guest = await _guestRepo.GetByIdAsync(bookingRequestDTO.GuestId);
+            if (guest == null)
+            {
+                throw new ArgumentException($"Guest with ID {bookingRequestDTO.GuestId} does not exist.");
+            }
+            var table = await _tableRepo.GetByIdAsync(bookingRequestDTO.TableId);
+            if (table == null)
+            {
+                throw new ArgumentException($"Table with ID {bookingRequestDTO.TableId} does not exist.");
+            }   
+            if (bookingRequestDTO.PartySize > table.Capacity)
+            {
+                throw new ArgumentException($"Table with ID {bookingRequestDTO.TableId} cannot accommodate party size of {bookingRequestDTO.PartySize}.");
+            }
+            if (bookingRequestDTO.PartySize > 4)
+            {
+                throw new ArgumentException("Maximum party size per booking is 4 guest.");
+            }
             var newBooking = new Booking
             {
                 FK_TableId = bookingRequestDTO.TableId,

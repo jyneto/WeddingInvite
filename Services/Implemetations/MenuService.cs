@@ -1,4 +1,5 @@
 ﻿using WeddingInvite.Api.DTOs.MenuItemDTO;
+using WeddingInvite.Api.Models;
 using WeddingInvite.Api.Repositories.Interfaces;
 using WeddingInvite.Api.Services.Interfaces;
 
@@ -13,9 +14,9 @@ namespace WeddingInvite.Api.Services.Implemetations
             _menuRepository = menuRepository;
         }
 
-        public async Task<int> AddItemAsync(MenuItemGetDTO menuItemRequestDTO)
+        public async Task<int> AddItemAsync(MenuItemCreateDTO menuItemRequestDTO)
         {
-            var newMenuItem = new Models.MenuItem
+            var newMenuItem = new MenuItem
             {
                 Name = menuItemRequestDTO.Name,
                 Description = menuItemRequestDTO.Description,

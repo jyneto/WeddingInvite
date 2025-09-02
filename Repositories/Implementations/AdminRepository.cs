@@ -17,5 +17,17 @@ namespace WeddingInvite.Api.Repositories.Implementations
                 .FirstOrDefaultAsync(a => a.UserName == userName);
             return admin;
         }
+
+        public async Task<bool> AddAdminAsync(Admin admin)
+        {
+            _context.Admins.Add(admin);
+            var result = await _context.SaveChangesAsync();
+            return result > 0;
+        }
+
+        public async Task<bool> UserNameExistsAsync(string userName)
+        {
+            return await _context.Admins.AnyAsync(a => a.UserName == userName);
+        }
     }
 }

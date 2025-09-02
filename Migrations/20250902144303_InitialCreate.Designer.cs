@@ -12,8 +12,8 @@ using WeddingInvite.Api.Data;
 namespace WeddingInvite.Api.Migrations
 {
     [DbContext(typeof(WeddingDbContext))]
-    [Migration("20250831164344_Init")]
-    partial class Init
+    [Migration("20250902144303_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

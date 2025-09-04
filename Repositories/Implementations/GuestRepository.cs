@@ -33,13 +33,13 @@ namespace WeddingInvite.Api.Repositories.Implementations
             }
             catch (DbUpdateException ex) when (IsUniqueViolation(ex))
             {
-                // Handle exceptions related to database updates
+                
                 throw new InvalidOperationException("A guest with the same email already exists.", ex);
             }
 
             static bool IsUniqueViolation(DbUpdateException ex)
             {
-                // Check if the exception is due to a unique constraint violation
+               
                 return ex.InnerException != null && ex.InnerException.Message.Contains("UNIQUE constraint failed");
             }
         }

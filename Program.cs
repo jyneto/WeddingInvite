@@ -28,11 +28,6 @@ namespace WeddingInvite.Api
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
             });
 
-
-
-
-
-
             //Repository
             builder.Services.AddScoped<IAdminRepository, AdminRepository>();
             builder.Services.AddScoped<IGuestRepository, GuestRepository>();
@@ -61,7 +56,7 @@ namespace WeddingInvite.Api
                     Scheme = "Bearer",
                     BearerFormat = "JWT",
                     In = ParameterLocation.Header,
-                    Description = "Enter your JWT token like this: Bearer {your token}"
+                    Description = "Enter your JWT token."
                 });
 
                 options.AddSecurityRequirement(new OpenApiSecurityRequirement
@@ -89,7 +84,6 @@ namespace WeddingInvite.Api
             Console.WriteLine("JWT Audience = " + builder.Configuration["Jwt:Audience"]);
             Console.WriteLine("JWT Key len  = " + (builder.Configuration["Jwt:Key"]?.Length ?? 0));
 
-            // Fail fast om saknas
             var jwtKey = builder.Configuration["Jwt:Key"]
                 ?? throw new InvalidOperationException("Missing Jwt:Key (User Secrets?)");
 
@@ -134,7 +128,6 @@ namespace WeddingInvite.Api
                     db.SaveChanges();
                 }
             }
- 
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())

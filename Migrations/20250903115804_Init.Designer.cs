@@ -12,7 +12,7 @@ using WeddingInvite.Api.Data;
 namespace WeddingInvite.Api.Migrations
 {
     [DbContext(typeof(WeddingDbContext))]
-    [Migration("20250831164344_Init")]
+    [Migration("20250903115804_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -45,14 +45,6 @@ namespace WeddingInvite.Api.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Admins");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            PasswordHash = "AQAAAA",
-                            UserName = "admin"
-                        });
                 });
 
             modelBuilder.Entity("WeddingInvite.Api.Models.Booking", b =>

@@ -107,11 +107,6 @@ namespace WeddingInvite.Api.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.InsertData(
-                table: "Admins",
-                columns: new[] { "Id", "PasswordHash", "UserName" },
-                values: new object[] { 1, "AQAAAA", "admin" });
-
             migrationBuilder.CreateIndex(
                 name: "IX_Bookings_FK_GuestId",
                 table: "Bookings",

@@ -10,5 +10,6 @@ namespace WeddingInvite.Api.Repositories.Interfaces
         Task<int> AddTableAsync(Table table);
         Task<bool> UpdateTableAsync(Table table);
         Task<bool> DeleteTableAsync(int tableId);
+        Task<Table?> GetByIdAsync(int id);
     }
 }

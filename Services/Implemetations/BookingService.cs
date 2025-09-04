@@ -24,7 +24,33 @@ namespace WeddingInvite.Api.Services.Implemetations
 
         private TimeSpan Duration => TimeSpan.FromMinutes(_policy.DurationMinutes);
         public async Task<int> AddBookingAsync(BookingCreateDTO bookingRequestDTO)
-        {
+        {   var guest = await _guestRepo.GetByIdAsync(bookingRequestDTO.GuestId);
+            var start = DateTime.SpecifyKind(bookingRequestDTO.StartTime, DateTimeKind.Utc);
+            var end = start.Add(Duration);
+
+            if (guest == null)
+            {
+                throw new ArgumentException($"Guest with ID {bookingRequestDTO.GuestId} does not exist.");
+            }
+            var table = await _tableRepo.GetByIdAsync(bookingRequestDTO.TableId);
+            if (table == null)
+            {
+                throw new ArgumentException($"Table with ID {bookingRequestDTO.TableId} does not exist.");
+            }
+            if (bookingRequestDTO.PartySize > table.Capacity)
+            {
+                throw new ArgumentException($"Table with ID {bookingRequestDTO.TableId} cannot accommodate party size of {bookingRequestDTO.PartySize}.");
+            }
+            if (bookingRequestDTO.PartySize > 4)
+            {
+                throw new ArgumentException("Maximum party size per booking is 4 guest.");
+            }
+
+            if (await _bookingRepo.BookingOverlapAsync(table.Id, start, end))
+            {
+                throw new InvalidOperationException("Booking time overlaps with an existing booking.");
+            }
+
             var newBooking = new Booking
             {
                 FK_TableId = bookingRequestDTO.TableId,
@@ -32,7 +58,6 @@ namespace WeddingInvite.Api.Services.Implemetations
                 StartTime = DateTime.SpecifyKind(bookingRequestDTO.StartTime, DateTimeKind.Utc),
                 EndTime = DateTime.SpecifyKind(bookingRequestDTO.StartTime, DateTimeKind.Utc).Add(Duration),
                 PartySize = bookingRequestDTO.PartySize
-
             };
             return await _bookingRepo.AddBookingAsync(newBooking);
         }
@@ -110,19 +135,17 @@ namespace WeddingInvite.Api.Services.Implemetations
 
         }
 
-        public Task<bool> UpdateBookingAsync(int id, BookingGetDTO bookingRequestDTO)
+        public async Task<bool> UpdateBookingAsync(int id, BookingGetDTO bookingRequestDTO)
         {
-            var existingBooking = _bookingRepo.GetByIdAsync(id).Result;
-            if (existingBooking == null)
-            {
-                return Task.FromResult(false);
-            }
+            var existingBooking = await _bookingRepo.GetByIdAsync(id);
+            if (existingBooking == null) return false;
+
             existingBooking.FK_TableId = bookingRequestDTO.TableId;
             existingBooking.FK_GuestId = bookingRequestDTO.GuestId;
             existingBooking.StartTime = DateTime.SpecifyKind(bookingRequestDTO.StartTime, DateTimeKind.Utc);
             existingBooking.EndTime = DateTime.SpecifyKind(bookingRequestDTO.StartTime, DateTimeKind.Utc).Add(Duration);
             existingBooking.PartySize = bookingRequestDTO.PartySize;
-            return _bookingRepo.UpdateBookingAsync(existingBooking);
+            return await _bookingRepo.UpdateBookingAsync(existingBooking);
         }
     }
 }

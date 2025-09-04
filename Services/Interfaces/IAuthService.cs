@@ -7,5 +7,6 @@ namespace WeddingInvite.Api.Services.Interfaces
         Task<AdminResponseDTO?> LoginAsync(AdminLoginDTO adminLoginDTO);
         Task<string> HashPassword (string password);
         Task<bool> VerifyPassword(string password, string hash);
+        Task<bool> RegisterAsync(AdminRegisterDTO adminregisterDTO);
     }
 }

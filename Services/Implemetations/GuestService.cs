@@ -14,18 +14,26 @@ namespace WeddingInvite.Api.Services.Implemetations
         {
             _guestRepo = guestRepo;
         }
+        public Task<bool> EmailExistAsync(string email) =>
+
+            _guestRepo.EmailExistAsync(email);
+
 
         public async Task<int> AddGuestAsync(GuestCreateDTO guestCreateDTO)
         {
+            var email= guestCreateDTO.Email?.Trim().ToLowerInvariant();
+            if(await _guestRepo.EmailExistAsync(email!))
+                throw new InvalidOperationException("A guest with the same email already exists.");
+
             var guest = new Guest
             {
-                FullName = guestCreateDTO.FullName,
-                Email = guestCreateDTO.Email,
-                Phone = guestCreateDTO.Phone,
+                FullName = guestCreateDTO.FullName?.Trim(),
+                Email = guestCreateDTO.Email!,
+                Phone = guestCreateDTO.Phone?.Trim(),
                 IsAttending = guestCreateDTO.IsAttending,
-                Allergies = guestCreateDTO.Allergies
+                Allergies = guestCreateDTO.Allergies?.Trim()
             };
-            return await _guestRepo.AddGuestAsync(guest);
+            return await _guestRepo.AddGuestAsync(guestCreateDTO);
         }
 
         public async Task<List<GuestGetDTO>> GetAllGuestAsync()

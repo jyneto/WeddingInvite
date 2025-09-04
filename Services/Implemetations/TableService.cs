@@ -13,7 +13,7 @@ namespace WeddingInvite.Api.Services.Implemetations
             _tableRepo = tableRespiratory;
         }
 
-        public async Task<int> AddTableAsync(TableGetDTO table)
+        public async Task<int> AddTableAsync(TableCreateDTO table)
         {
             var newTable = new Table
             {

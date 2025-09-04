@@ -5,8 +5,8 @@ namespace WeddingInvite.Api.Services.Interfaces
     {
         Task<List<TableGetDTO>> GetAllTableAsync();
         Task<TableGetDTO?> GetTableByIdAsync(int id);
-        Task<int> AddTableAsync(TableGetDTO table);
+        Task<int> AddTableAsync(TableCreateDTO table);
         Task<bool> UpdateTableAsync(TableUpdateDTO table);
-        Task<bool> DeleteTableAsync(int tableId);
+        Task<bool> DeleteTableAsync(int id);
     }
 }

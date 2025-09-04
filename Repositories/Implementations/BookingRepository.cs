@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using WeddingInvite.Api.Data;
 using WeddingInvite.Api.Models;
 using WeddingInvite.Api.Repositories.Interfaces;
@@ -45,15 +46,25 @@ namespace WeddingInvite.Api.Repositories.Implementations
             return booking;
         }
 
-        public Task<bool> UpdateBookingAsync(Booking booking)
+        public async Task<bool> UpdateBookingAsync(Booking booking)
         {
             _context.Bookings.Update(booking);
-            var result = _context.SaveChangesAsync();
-            if (result.Result > 0)
-            {
-                return Task.FromResult(true);
-            }
-            return Task.FromResult(false);
+            var result = await _context.SaveChangesAsync();
+            return result > 0;
+        }
+
+        public async Task<bool> BookingOverlapAsync(int bookingId, DateTime start, DateTime end)
+        {
+            //return await _context.Bookings
+            //    .Where(b => b.FK_TableId == bookingId)
+            //    .AnyAsync(b => b.StartTime < end && start < b.EndTime);
+
+            return await _context.Bookings
+                .AnyAsync(b => 
+                b.FK_TableId == bookingId && 
+                b.StartTime < end && 
+                start < b.EndTime);
         }
     }
 }
+

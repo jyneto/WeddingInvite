@@ -9,5 +9,6 @@ namespace WeddingInvite.Api.Repositories.Interfaces
         Task <int>AddBookingAsync(Booking booking);
         Task<bool> UpdateBookingAsync(Booking booking);
         Task<bool> DeleteBookingAsync(int bookingId);
+        Task<bool> BookingOverlapAsync(int bookingId, DateTime start, DateTime end);
     }
 }

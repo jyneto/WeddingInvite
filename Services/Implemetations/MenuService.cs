@@ -1,4 +1,5 @@
 ﻿using WeddingInvite.Api.DTOs.MenuItemDTO;
+using WeddingInvite.Api.Models;
 using WeddingInvite.Api.Repositories.Interfaces;
 using WeddingInvite.Api.Services.Interfaces;
 
@@ -13,9 +14,9 @@ namespace WeddingInvite.Api.Services.Implemetations
             _menuRepository = menuRepository;
         }
 
-        public async Task<int> AddItemAsync(MenuItemGetDTO menuItemRequestDTO)
+        public async Task<int> AddItemAsync(MenuItemCreateDTO menuItemRequestDTO)
         {
-            var newMenuItem = new Models.MenuItem
+            var newMenuItem = new MenuItem
             {
                 Name = menuItemRequestDTO.Name,
                 Description = menuItemRequestDTO.Description,
@@ -63,19 +64,19 @@ namespace WeddingInvite.Api.Services.Implemetations
             return menuItemDTO;
         }
 
-        public Task<bool> UpdateItemAsync(MenuItemGetDTO menuItemRequestDTO)
+        public Task<bool> UpdateItemAsync(MenuItemUpdateDTO menuItemUpdateDto)
         {
-            var existingMenuItem = _menuRepository.GetItemByIdAsync(menuItemRequestDTO.Id);
+            var existingMenuItem = _menuRepository.GetItemByIdAsync(menuItemUpdateDto.Id);
             if (existingMenuItem == null)
             {
                 return Task.FromResult(false);
             }
             var updatedMenuItem = new Models.MenuItem
             {
-                Id = menuItemRequestDTO.Id,
-                Name = menuItemRequestDTO.Name,
-                Description = menuItemRequestDTO.Description,
-                Price = menuItemRequestDTO.Price
+                Id = menuItemUpdateDto.Id,
+                Name = menuItemUpdateDto.Name,
+                Description = menuItemUpdateDto.Description,
+                Price = menuItemUpdateDto.Price
             };
             return _menuRepository.UpdateItemAsync(updatedMenuItem);
         }

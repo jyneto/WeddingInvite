@@ -7,5 +7,6 @@ namespace WeddingInvite.Api.Repositories.Interfaces
         Task<Admin?> GetByUserNameAsync(string userName);
         Task<bool> AddAdminAsync(Admin admin);
         Task<bool> UserNameExistsAsync(string userName);
+        Task<bool> AnyAsync();
     }
 }

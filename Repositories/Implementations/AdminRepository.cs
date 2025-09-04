@@ -29,5 +29,9 @@ namespace WeddingInvite.Api.Repositories.Implementations
         {
             return await _context.Admins.AnyAsync(a => a.UserName == userName);
         }
+        public async Task<bool> AnyAsync()
+        {
+            return await _context.Admins.AnyAsync();
+        }
     }
 }

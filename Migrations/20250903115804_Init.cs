@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace WeddingInvite.Api.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -106,11 +106,6 @@ namespace WeddingInvite.Api.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
-
-            migrationBuilder.InsertData(
-                table: "Admins",
-                columns: new[] { "Id", "PasswordHash", "UserName" },
-                values: new object[] { 1, "AQAAAA", "admin" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Bookings_FK_GuestId",

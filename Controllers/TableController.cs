@@ -15,8 +15,9 @@ namespace WeddingInvite.Api.Controllers
         {
             _tableService = tableService;
         }
+
         [HttpGet]
-        public async Task<IActionResult> GetTable()
+        public async Task<IActionResult> GetTables()
         {
             var tables = await _tableService.GetAllTableAsync();
             return Ok(tables);
@@ -34,15 +35,24 @@ namespace WeddingInvite.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddTable([FromBody] TableGetDTO tableDto)
+        public async Task<IActionResult> AddTable([FromBody] TableCreateDTO tableDto)
         {
+            if(!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var newTableId = await _tableService.AddTableAsync(tableDto);
             return CreatedAtAction(nameof(GetTableById), new { id = newTableId }, new { Id = newTableId });
         }
 
-        [HttpPut]
-        public async Task<IActionResult> UpdateTable([FromBody] TableUpdateDTO tableDto)
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> UpdateTable(int id, [FromBody] TableUpdateDTO tableDto)
         {
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            if (id != tableDto.Id)
+                return BadRequest("ID mismatch");
+
             var isUpdated = await _tableService.UpdateTableAsync(tableDto);
             if (!isUpdated)
             {

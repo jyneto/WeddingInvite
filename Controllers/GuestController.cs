@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using WeddingInvite.Api.DTOs.GuestDTO;
 using WeddingInvite.Api.Services.Interfaces;
 
@@ -13,17 +15,30 @@ namespace WeddingInvite.Api.Controllers
         {
             _guestService = guestService;
         }
+
+        [AllowAnonymous]
         [HttpPost]
-        public async Task<IActionResult> SubmitRSVP([FromBody] GuestCreateDTO guestCreateDTO)
+        public async Task<IActionResult> SubmitRSVP([FromBody] GuestCreateDTO guestCreateDto)
         {
             if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-            var newGuestId = await _guestService.AddGuestAsync(guestCreateDTO);
-            return CreatedAtAction(nameof(SubmitRSVP), new { id = newGuestId }, new { Id = newGuestId });
-
+            try
+            {
+                var id = await _guestService.AddGuestAsync(guestCreateDto);
+                return CreatedAtAction(nameof(GetGuestById), new { id = id }, new { Id = id });
+            }
+            catch (ArgumentException ex)
+            { 
+                return BadRequest(ex.Message );
+            }
+            catch (DbUpdateException)
+            {
+                return Conflict("A guest with this email already exist.");
+            }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetGuestById(int id)
         {

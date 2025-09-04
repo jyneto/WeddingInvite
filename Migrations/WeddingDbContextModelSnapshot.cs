@@ -42,14 +42,6 @@ namespace WeddingInvite.Api.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Admins");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            PasswordHash = "AQAAAA",
-                            UserName = "admin"
-                        });
                 });
 
             modelBuilder.Entity("WeddingInvite.Api.Models.Booking", b =>

@@ -64,19 +64,19 @@ namespace WeddingInvite.Api.Services.Implemetations
             return menuItemDTO;
         }
 
-        public Task<bool> UpdateItemAsync(MenuItemGetDTO menuItemRequestDTO)
+        public Task<bool> UpdateItemAsync(MenuItemUpdateDTO menuItemUpdateDto)
         {
-            var existingMenuItem = _menuRepository.GetItemByIdAsync(menuItemRequestDTO.Id);
+            var existingMenuItem = _menuRepository.GetItemByIdAsync(menuItemUpdateDto.Id);
             if (existingMenuItem == null)
             {
                 return Task.FromResult(false);
             }
             var updatedMenuItem = new Models.MenuItem
             {
-                Id = menuItemRequestDTO.Id,
-                Name = menuItemRequestDTO.Name,
-                Description = menuItemRequestDTO.Description,
-                Price = menuItemRequestDTO.Price
+                Id = menuItemUpdateDto.Id,
+                Name = menuItemUpdateDto.Name,
+                Description = menuItemUpdateDto.Description,
+                Price = menuItemUpdateDto.Price
             };
             return _menuRepository.UpdateItemAsync(updatedMenuItem);
         }

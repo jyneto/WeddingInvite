@@ -37,15 +37,37 @@ namespace WeddingInvite.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> AddItem([FromBody] MenuItemCreateDTO menuItemDto)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var newItemId = await _menuService.AddItemAsync(menuItemDto);
             return CreatedAtAction(nameof(GetById), new { id = newItemId }, new { Id = newItemId });
         }
-        [HttpPut]
-        public async Task<IActionResult> UpdateItem([FromBody] MenuItemGetDTO menuItemGetDTO)
-        { 
-            var findItem = await _menuService.UpdateItemAsync(menuItemGetDTO);
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> UpdateItem(int id, [FromBody] MenuItemUpdateDTO menuItemUpdateDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            if(id != menuItemUpdateDto.Id) return BadRequest("Id in URL does not match Id in body");
+
+            var findItem = await _menuService.UpdateItemAsync(menuItemUpdateDto);
             if(!findItem)
                 return NotFound("Menu item not found , update failed");
+            return NoContent();
+        }
+
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> DeleteItem(int id)
+        {
+            var isDeleted = await _menuService.DeleteItemAsync(id);
+            if (!isDeleted)
+            {
+                return NotFound("Menu item not found, delete failed");
+            }
             return NoContent();
         }
     }

@@ -34,8 +34,6 @@ namespace WeddingInvite.Api.Data
             modelBuilder.Entity<Booking>()
                 .HasIndex(b => new { b.FK_TableId, b.StartTime });
 
-            modelBuilder.Entity<Admin>()
-                .HasData(new Admin{Id = 1,UserName = "admin",PasswordHash = "AQAAAA"});
 
 
         }

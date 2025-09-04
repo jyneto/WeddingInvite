@@ -55,9 +55,6 @@ namespace WeddingInvite.Api.Repositories.Implementations
 
         public async Task<bool> BookingOverlapAsync(int bookingId, DateTime start, DateTime end)
         {
-            //return await _context.Bookings
-            //    .Where(b => b.FK_TableId == bookingId)
-            //    .AnyAsync(b => b.StartTime < end && start < b.EndTime);
 
             return await _context.Bookings
                 .AnyAsync(b => 

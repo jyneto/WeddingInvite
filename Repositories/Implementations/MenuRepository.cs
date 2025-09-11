@@ -41,17 +41,27 @@ namespace WeddingInvite.Api.Repositories.Implementations
                 .FirstOrDefaultAsync(m => m.Id == id);
             return item;
         }
-        public Task<bool> UpdateItemAsync(MenuItem menuItem)
+        public async Task<bool> UpdateItemAsync(MenuItem menuItem)
         {
-            _context.MenuItems.Update(menuItem);
-            var result = _context.SaveChangesAsync();
-            if (result.Result > 0)
-            {
-                return Task.FromResult(true);
-            }
-            return Task.FromResult(false);
+            //_context.MenuItems.Update(menuItem);
+            //var result = _context.SaveChangesAsync();
+            //if (result.Result > 0)
+            //{
+            //    return Task.FromResult(true);
+            //}
+            //return Task.FromResult(false);
+
+            var existingItem = await _context.MenuItems.FindAsync(menuItem.Id);
+            if (existingItem == null) return false;
+
+            existingItem.Name = menuItem.Name;
+            existingItem.Description = menuItem.Description;
+            existingItem.Price = menuItem.Price;
+
+            var result = await _context.SaveChangesAsync();
+            return result > 0;
         }
 
-    
+
     }
 }

@@ -1,19 +1,26 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WeddingInvite.Api.Data;
+using WeddingInvite.Api.DTOs.BookingDTO;
 using WeddingInvite.Api.DTOs.GuestDTO;
 using WeddingInvite.Api.Services.Interfaces;
 
 namespace WeddingInvite.Api.Controllers
 {
     [ApiController]
-    [Route("api/guest/rsvp")]
+    [Route("api/guest")]
+    [Authorize(Roles = "Admin,User")]
     public class GuestController : ControllerBase
     {
         private IGuestService _guestService;
-        public GuestController(IGuestService guestService)
+        private readonly IBookingService _bookingService;
+        private readonly WeddingDbContext _context;
+        public GuestController(IGuestService guestService, IBookingService bookingService, WeddingDbContext context)
         {
             _guestService = guestService;
+            _bookingService = bookingService;
+            _context = context;
         }
 
         [AllowAnonymous]
@@ -21,7 +28,7 @@ namespace WeddingInvite.Api.Controllers
         public async Task<IActionResult> SubmitRSVP([FromBody] GuestCreateDTO guestCreateDto)
         {
             if (!ModelState.IsValid)
-            return BadRequest(ModelState);
+                return BadRequest(ModelState);
 
             try
             {
@@ -29,14 +36,16 @@ namespace WeddingInvite.Api.Controllers
                 return CreatedAtAction(nameof(GetGuestById), new { id = id }, new { Id = id });
             }
             catch (ArgumentException ex)
-            { 
-                return BadRequest(ex.Message );
+            {
+                return BadRequest(ex.Message);
             }
             catch (DbUpdateException)
             {
                 return Conflict("A guest with this email already exist.");
             }
         }
+
+
 
         [Authorize(Roles = "Admin")]
         [HttpGet("{id:int}")]
@@ -49,5 +58,63 @@ namespace WeddingInvite.Api.Controllers
             }
             return Ok(guest);
         }
+        [Authorize(Roles = "Admin")]
+        [HttpGet]
+        public async Task<IActionResult> GetAllbyIdAsync()
+        {
+            var guest = await _guestService.GetAllGuestAsync();
+            if (guest == null)
+            {
+                return NotFound();
+            }
+            return Ok(guest);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPut("{id:int}")]
+
+        public async Task<IActionResult> UpdateGuest(int Id, [FromBody] GuestUpdateDTO guestUpdateDTO)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+            if (Id != guestUpdateDTO.Id) return BadRequest("ID missmatch");
+
+            var guest = await _guestService.GetGuestByIdAsync(Id);
+            if (guest == null) return NotFound();
+
+            guest.Id = guestUpdateDTO.Id;
+            guest.IsAttending = guestUpdateDTO.IsAttending;
+            guest.Allergies = guestUpdateDTO.Allergies;
+            guest.TableId = guestUpdateDTO.TableId;
+            await _guestService.UpdateGuestAsync(Id, guestUpdateDTO);
+            return NoContent();
+        }
+
+        [AllowAnonymous]
+        [HttpGet("available-tables")]
+        public async Task<IActionResult> GetAvailableTables()
+        {
+            var availableTables = await _context.Tables
+                .Include(t => t.Guests)
+                .Where(t => t.Guests.Count < t.Capacity)
+                .ToListAsync();
+
+            return Ok(availableTables);
+        }
+
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            try
+            {
+                var ok = await _guestService.DeleteGuestAsync(id);
+                if (!ok) return NotFound();
+                return NoContent();
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(ex.Message);
+            }
+        }
+
     }
 }

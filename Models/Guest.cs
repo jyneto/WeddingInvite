@@ -16,6 +16,8 @@ namespace WeddingInvite.Api.Models
         public bool IsAttending { get; set; }
         [MaxLength(250)]
         public string? Allergies { get; set; }
-      
+
+        public int? TableId { get; set; }
+        public Table? Table { get; set; }
     }
 }

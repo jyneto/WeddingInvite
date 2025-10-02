@@ -46,7 +46,10 @@ namespace WeddingInvite.Api.Services.Implemetations
                 Email = g.Email,
                 Phone = g.Phone,
                 IsAttending = g.IsAttending,
-                Allergies = g.Allergies
+                Allergies = g.Allergies,
+                TableId = g.TableId,
+                TableNumber = g.Table != null? g.Table.TableNumber : (int?)null
+
             }).ToList();
         }
 
@@ -57,7 +60,7 @@ namespace WeddingInvite.Api.Services.Implemetations
                 if (guest == null)
                 {
                     return null;
-                }
+                } 
             var  guesDTos = new GuestGetDTO
             {
                 Id = guest.Id,
@@ -65,7 +68,10 @@ namespace WeddingInvite.Api.Services.Implemetations
                 Email = guest.Email,
                 Phone = guest.Phone,
                 IsAttending = guest.IsAttending,
-                Allergies = guest.Allergies
+                Allergies = guest.Allergies,
+                TableId = guest.TableId,
+                TableNumber = guest.Table != null ? guest.Table.TableNumber : (int?)null
+
             };
 
             return guesDTos;
@@ -83,6 +89,7 @@ namespace WeddingInvite.Api.Services.Implemetations
             existingGuest.Phone = guestUpdateDTO.Phone;
             existingGuest.IsAttending = guestUpdateDTO.IsAttending;
             existingGuest.Allergies = guestUpdateDTO.Allergies;
+            existingGuest.TableId = guestUpdateDTO.TableId;
         
             return await _guestRepo.UpdateGuestAsync(existingGuest);
 

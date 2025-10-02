@@ -43,14 +43,7 @@ namespace WeddingInvite.Api.Repositories.Implementations
         }
         public async Task<bool> UpdateItemAsync(MenuItem menuItem)
         {
-            //_context.MenuItems.Update(menuItem);
-            //var result = _context.SaveChangesAsync();
-            //if (result.Result > 0)
-            //{
-            //    return Task.FromResult(true);
-            //}
-            //return Task.FromResult(false);
-
+           
             var existingItem = await _context.MenuItems.FindAsync(menuItem.Id);
             if (existingItem == null) return false;
 

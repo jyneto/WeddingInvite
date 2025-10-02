@@ -21,18 +21,6 @@ namespace WeddingInvite.Api.Repositories.Implementations
             return table.Id;
         }
 
-        public async Task<bool> DeleteTableAsync(int tableId)
-        {
-            var rowsAffected = await _context.Tables
-                .Where(t => t.Id == tableId)
-                .ExecuteDeleteAsync();
-            if(rowsAffected > 0) 
-            {
-                return true;
-            }
-            return false;
-        }
-
         public async Task<Table?> GetByIdAsync(int id)
         {
             return await _context.Tables.FindAsync(id);
@@ -61,5 +49,22 @@ namespace WeddingInvite.Api.Repositories.Implementations
             }
             return Task.FromResult(false);
         }
+
+       public Task<bool> ExistsAsync(int id) =>
+            _context.Tables.AnyAsync(t => t.Id == id);
+        
+        public async Task<bool> IsInUseAsync(int tableId)
+        {
+            return await _context.Guests.AnyAsync(g => g.TableId == tableId) || await _context.Bookings.AnyAsync(b => b.FK_TableId == tableId);
+        }
+        public async Task<bool> DeleteTableAsync(int tableId)
+        {
+            var table = await _context.Tables.FindAsync(tableId);
+            if (table is null) return false;
+            _context.Tables.Remove(table);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
     }
 }

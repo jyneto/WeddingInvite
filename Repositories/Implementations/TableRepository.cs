@@ -39,16 +39,6 @@ namespace WeddingInvite.Api.Repositories.Implementations
             return table;
         }
 
-        //public Task<bool> UpdateTableAsync(Table table)
-        //{
-        //    _context.Tables.Update(table);
-        //    var result =  _context.SaveChangesAsync();
-        //    if(result.Result > 0)
-        //    {
-        //        return Task.FromResult(true);
-        //    }
-        //    return Task.FromResult(false);
-        //}
 
         public async Task<bool> UpdateTableAsync(Table table)
         {

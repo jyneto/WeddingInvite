@@ -8,7 +8,6 @@ using WeddingInvite.Api.Models;
 using WeddingInvite.Api.Repositories.Interfaces;
 using WeddingInvite.Api.Services.Interfaces;
 using AvailableTableDTO = WeddingInvite.Api.DTOs.TableDTO.AvailableTableDTO;
-//using AvailableTableDTO = WeddingInvite.Api.DTOs.BookingDTO.AvailableTableDTO;
 
 namespace WeddingInvite.Api.Services.Implemetations
 {
@@ -47,10 +46,6 @@ namespace WeddingInvite.Api.Services.Implemetations
             if (start.Date != EventDate.Date)
                 throw new ArgumentException($"Bookings must be on {EventDate:yyyy-MM-dd}.");
 
-            //if (await _bookingRepo.BookingOverlapAsync(bookingRequestDTO.TableId, start, end))
-            //{
-            //    throw new InvalidOperationException("Booking time overlaps with an existing booking.");
-            //}
 
             //capacity
             var used = await _bookingRepo.UsedSeatsAsync(bookingRequestDTO.TableId, start, end);
@@ -69,12 +64,6 @@ namespace WeddingInvite.Api.Services.Implemetations
             };
             // Create the booking
             var bookingId = await _bookingRepo.AddBookingAsync(booking);
-         
-            //if (guest != null)
-            //{
-            //    guest.TableId = bookingRequestDTO.TableId;
-            //    await _guestRepo.UpdateGuestAsync(guest);
-            //}
 
             return bookingId;
         }
@@ -101,10 +90,6 @@ namespace WeddingInvite.Api.Services.Implemetations
             //Date check - only allow bookings on the weddíng date
             if (start.Date != EventDate.Date)
                 throw new ArgumentException($"Bookings must be on {EventDate:yyyy-MM-dd}.");
-
-            //Capacity based on existing bookings
-            //if(await _bookingRepo.BookingOverlapAsync(dto.TableId, start, end))
-            //    throw new InvalidOperationException("Booking time overlaps with an existing booking.");
 
             //Capacity check based on existing bookings
             var used = await _bookingRepo.UsedSeatsAsync(dto.TableId, start, end);
@@ -181,70 +166,6 @@ namespace WeddingInvite.Api.Services.Implemetations
             return bookingDTOs;
 
         }
-
-        //public async Task<List<AvailableTableDTO>> GetAvailableTablesAsync(AvailabilityRequestDTO availabilityRequestDTO)
-        //{
-        //    var start = DateTime.SpecifyKind(availabilityRequestDTO.StartTime, DateTimeKind.Utc);
-        //    var end = start.Add(Duration);
-
-        //    var tables = await _tableRepo.GetAllTableAsync();
-        //    var bookings = await _bookingRepo.GetAllBookingsAsync();
-
-
-        //    var unavailableTableIds = bookings
-        //        .Where (b => b.StartTime < end && start < b.EndTime)
-        //        .Select(b => b.FK_TableId)
-        //        .ToHashSet();
-
-        //    var availableTables = tables
-        //        .Where (t => t.Capacity >= availabilityRequestDTO.PartySize && !unavailableTableIds.Contains(t.Id))
-        //        .Select (t => new AvailableTableDTO
-        //        {
-        //            TableId = t.Id,
-        //            TableNumber = t.TableNumber,
-        //            Capacity = t.Capacity
-        //        }).ToList();
-        //    return availableTables;
-        //}
-
-
-
-        //public async Task<List<AvailableTableDTO>> GetAvailableTablesAsync(AvailabilityRequestDTO dto)
-        //    {
-        //        // Normalize to UTC and compute end of the slot
-        //        var start = DateTime.SpecifyKind(dto.StartTime, DateTimeKind.Utc);
-        //        var end = start.Add(Duration);
-
-        //        var tables = await _tableRepo.GetAllTableAsync();
-        //        var result = new List<AvailableTableDTO>(tables.Count);
-
-        //        foreach (var table in tables)
-        //        {
-        //            // quick reject: table too small for the requested party
-        //            if (table.Capacity < dto.PartySize) continue;
-
-        //            // seats already taken in this time window (sum of PartySize for overlapping bookings)
-        //            // NOTE: this is the overload without "excludeBookingId"
-        //            var used = await _bookingRepo.UsedSeatsAsync(table.Id, start, end);
-
-        //            var remaining = table.Capacity - used;
-        //            if (remaining >= dto.PartySize)
-        //            {
-        //                result.Add(new AvailableTableDTO
-        //                {
-        //                    TableId = table.Id,
-        //                    TableNumber = table.TableNumber,
-        //                    Capacity = table.Capacity,
-        //                    AvailableSeats = remaining
-        //                });
-        //            }
-        //        }
-
-        //        return result
-        //            .OrderByDescending(x => x.AvailableSeats)
-        //            .ThenBy(x => x.TableNumber)
-        //            .ToList(); 
-        //     }
 
         public async Task<List<AvailableTableDTO>> GetAvailableTablesAsync(AvailabilityRequestDTO dto)
         {
@@ -336,9 +257,7 @@ namespace WeddingInvite.Api.Services.Implemetations
             var end = start.Add(Duration);
             if (start.Date != EventDate.Date) 
                 throw new ArgumentException($"Bookings must be on {EventDate:yyyy-MM-dd}.");
-            //Overlap
-            //if (await _bookingRepo.BookingOverlapAsync(bookingRequestDTO.TableId, start, end)) throw new InvalidOperationException("Booking time overlaps with another booking in this table.");
-
+          
             
             var used = await _bookingRepo.UsedSeatsAsync(bookingRequestDTO.TableId, start, end, id);
             var remaining = table.Capacity - used;

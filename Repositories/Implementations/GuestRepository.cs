@@ -17,31 +17,50 @@ namespace WeddingInvite.Api.Repositories.Implementations
             _context = context;
         }
 
-        public async Task<int> AddGuestAsync(GuestCreateDTO guest)
+        //public async Task<int> AddGuestAsync(GuestCreateDTO guest)
+        //{
+        //    var newGuest = new Guest
+        //    {
+        //        FullName = guest.FullName,
+        //        Email = guest.Email,
+        //        Phone = guest.Phone,
+        //        IsAttending = guest.IsAttending,
+        //        Allergies = guest.Allergies
+        //    };
+        //    _context.Guests.Add(newGuest);
+        //    try
+        //    {
+        //        await _context.SaveChangesAsync();
+        //        return newGuest.Id;
+        //    }
+        //    catch (DbUpdateException ex) when (IsUniqueViolation(ex))
+        //    {
+
+        //        throw new InvalidOperationException("A guest with the same email already exists.", ex);
+        //    }
+
+        //    static bool IsUniqueViolation(DbUpdateException ex)
+        //    {
+
+        //        return ex.InnerException != null && ex.InnerException.Message.Contains("UNIQUE constraint failed");
+        //    }
+        //}
+
+        public async Task<int> AddGuestAsync(Guest guest)
         {
-            var newGuest = new Guest
-            {
-                FullName = guest.FullName,
-                Email = guest.Email,
-                Phone = guest.Phone,
-                IsAttending = guest.IsAttending,
-                Allergies = guest.Allergies
-            };
-            _context.Guests.Add(newGuest);
+            _context.Guests.Add(guest);
+
             try
             {
                 await _context.SaveChangesAsync();
-                return newGuest.Id;
+                return guest.Id;
             }
             catch (DbUpdateException ex) when (IsUniqueViolation(ex))
             {
-
                 throw new InvalidOperationException("A guest with the same email already exists.", ex);
-            }
-
+            }   
             static bool IsUniqueViolation(DbUpdateException ex)
             {
-
                 return ex.InnerException != null && ex.InnerException.Message.Contains("UNIQUE constraint failed");
             }
         }
@@ -70,9 +89,11 @@ namespace WeddingInvite.Api.Repositories.Implementations
             }
             return false;
         }
-        public Task<bool> EmailExistAsync(string email) =>
+        //public Task<bool> EmailExistAsync(string email) =>
 
-            _context.Guests.AnyAsync(g => g.Email == email);
+        //    _context.Guests.AnyAsync(g => g.Email == email);
+        public Task<bool> EmailExistAsync(string email) =>
+    _context.Guests.AnyAsync(g => g.Email.ToLower().Trim() == email.Trim().ToLower());
 
 
         public async Task<bool> DeleteGuestAsync(int guestId)

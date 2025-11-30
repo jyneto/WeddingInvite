@@ -39,18 +39,25 @@ namespace WeddingInvite.Api.Repositories.Implementations
             return table;
         }
 
-        public Task<bool> UpdateTableAsync(Table table)
+        //public Task<bool> UpdateTableAsync(Table table)
+        //{
+        //    _context.Tables.Update(table);
+        //    var result =  _context.SaveChangesAsync();
+        //    if(result.Result > 0)
+        //    {
+        //        return Task.FromResult(true);
+        //    }
+        //    return Task.FromResult(false);
+        //}
+
+        public async Task<bool> UpdateTableAsync(Table table)
         {
-            _context.Tables.Update(table);
-            var result =  _context.SaveChangesAsync();
-            if(result.Result > 0)
-            {
-                return Task.FromResult(true);
-            }
-            return Task.FromResult(false);
+           _context.Tables.Update(table);
+              var result = await _context.SaveChangesAsync();
+              return result > 0;
         }
 
-       public Task<bool> ExistsAsync(int id) =>
+        public Task<bool> ExistsAsync(int id) =>
             _context.Tables.AnyAsync(t => t.Id == id);
         
         public async Task<bool> IsInUseAsync(int tableId)

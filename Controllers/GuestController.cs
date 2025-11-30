@@ -31,8 +31,6 @@ namespace WeddingInvite.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> SubmitRSVP([FromBody] GuestCreateDTO guestCreateDto)
         {
-            //if (!ModelState.IsValid)
-            //    return BadRequest(ModelState);
             Console.WriteLine($"DTO in: IsAttending={guestCreateDto.IsAttending}, TableId={guestCreateDto.TableId}");
 
 
@@ -95,26 +93,7 @@ namespace WeddingInvite.Api.Controllers
             return NoContent();
         }
 
-        //[AllowAnonymous]
-        //[HttpGet("available-tables")]
-        //public async Task<IActionResult> GetAvailableTables()
-        //{
-        //    var availableTables = await _context.Tables
-        //        .Include(t => t.Guests)
-        //        .Where(t => t.Guests.Count < t.Capacity)
-        //        .ToListAsync();
-
-        //    var tableDTOs = availableTables.Select(t => new TableGetDTO
-        //    {
-        //        Id = t.Id,
-        //        TableNumber = t.TableNumber,
-        //        Capacity = t.Capacity,
-        //        AvailableSeats = t.Capacity - t.Guests.Count
-        //    }).ToList();
-
-        //    return Ok(tableDTOs);
-        //}
-
+      
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {

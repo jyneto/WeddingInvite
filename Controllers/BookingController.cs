@@ -11,6 +11,7 @@ namespace WeddingInvite.Api.Controllers
 {
     [ApiController]
     [Route("api/bookings")]
+    //[Route("api/[controller]")]
     [Authorize(Roles = "Admin")]
     public class BookingController : ControllerBase
     {
@@ -18,6 +19,32 @@ namespace WeddingInvite.Api.Controllers
         public BookingController(IBookingService bookingService)
         {
             _bookingService = bookingService;
+        }
+        [AllowAnonymous]
+        [HttpPost("rsvp")]
+        public async Task<IActionResult> CreateRsvpWithBooking([FromBody] RsvpBookingRequestDTO dto)
+        { 
+            if(!ModelState.IsValid) return BadRequest(ModelState);
+
+            try 
+            { 
+                var bookingId = await _bookingService.AddRsvpWithBookingAsync(dto);
+                var booking = await _bookingService.GetBookingByIdAsync(bookingId);
+                return CreatedAtAction(nameof(GetBookingById), new { id = bookingId }, booking);
+
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(ex.Message);
+            }
+            catch (DbUpdateException)
+            {
+                return Conflict("Could not create the booking due to a data conflict");
+            }
         }
 
         [HttpPost]
@@ -113,6 +140,7 @@ namespace WeddingInvite.Api.Controllers
             var availableTables = await _bookingService.GetAvailableTablesAsync(availabilityDTO);
             return Ok(availableTables);
         }
+
 
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteBooking(int id)

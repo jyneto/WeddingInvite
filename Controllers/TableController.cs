@@ -53,7 +53,7 @@ namespace WeddingInvite.Api.Controllers
             if (id != tableDto.Id)
                 return BadRequest("ID mismatch");
 
-            var isUpdated = await _tableService.UpdateTableAsync(tableDto);
+            var isUpdated = await _tableService.UpdateTableAsync(tableDto); 
             if (!isUpdated)
             {
                 return NotFound("Table not found , update failed");

@@ -4,16 +4,20 @@ using Microsoft.EntityFrameworkCore;
 using WeddingInvite.Api.Data;
 using WeddingInvite.Api.DTOs.BookingDTO;
 using WeddingInvite.Api.DTOs.GuestDTO;
+using WeddingInvite.Api.DTOs.TableDTO;
 using WeddingInvite.Api.Services.Interfaces;
 
 namespace WeddingInvite.Api.Controllers
 {
     [ApiController]
-    [Route("api/guest")]
+    //[Route("api/guest")]
+    [Route("api/[controller]")]
+    //[Route("api/")]
+
     [Authorize(Roles = "Admin,User")]
     public class GuestController : ControllerBase
     {
-        private IGuestService _guestService;
+        private readonly IGuestService _guestService;
         private readonly IBookingService _bookingService;
         private readonly WeddingDbContext _context;
         public GuestController(IGuestService guestService, IBookingService bookingService, WeddingDbContext context)
@@ -27,21 +31,23 @@ namespace WeddingInvite.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> SubmitRSVP([FromBody] GuestCreateDTO guestCreateDto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            //if (!ModelState.IsValid)
+            //    return BadRequest(ModelState);
+            Console.WriteLine($"DTO in: IsAttending={guestCreateDto.IsAttending}, TableId={guestCreateDto.TableId}");
+
 
             try
             {
                 var id = await _guestService.AddGuestAsync(guestCreateDto);
                 return CreatedAtAction(nameof(GetGuestById), new { id = id }, new { Id = id });
             }
-            catch (ArgumentException ex)
+            catch (InvalidOperationException ex)
             {
-                return BadRequest(ex.Message);
+                return Conflict(ex.Message);
             }
-            catch (DbUpdateException)
+            catch (DbUpdateException ex)
             {
-                return Conflict("A guest with this email already exist.");
+                return Conflict($"Database error: {ex.InnerException?.Message ?? ex.Message}");
             }
         }
 
@@ -89,17 +95,25 @@ namespace WeddingInvite.Api.Controllers
             return NoContent();
         }
 
-        [AllowAnonymous]
-        [HttpGet("available-tables")]
-        public async Task<IActionResult> GetAvailableTables()
-        {
-            var availableTables = await _context.Tables
-                .Include(t => t.Guests)
-                .Where(t => t.Guests.Count < t.Capacity)
-                .ToListAsync();
+        //[AllowAnonymous]
+        //[HttpGet("available-tables")]
+        //public async Task<IActionResult> GetAvailableTables()
+        //{
+        //    var availableTables = await _context.Tables
+        //        .Include(t => t.Guests)
+        //        .Where(t => t.Guests.Count < t.Capacity)
+        //        .ToListAsync();
 
-            return Ok(availableTables);
-        }
+        //    var tableDTOs = availableTables.Select(t => new TableGetDTO
+        //    {
+        //        Id = t.Id,
+        //        TableNumber = t.TableNumber,
+        //        Capacity = t.Capacity,
+        //        AvailableSeats = t.Capacity - t.Guests.Count
+        //    }).ToList();
+
+        //    return Ok(tableDTOs);
+        //}
 
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)

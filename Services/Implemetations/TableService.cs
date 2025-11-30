@@ -23,17 +23,6 @@ namespace WeddingInvite.Api.Services.Implemetations
             return await _tableRepo.AddTableAsync(newTable);
         }
 
-        public async Task<bool> DeleteTableAsync(int tableId)
-        {
-            var tableFound = await _tableRepo.GetTableByIdAsync(tableId);
-            if (tableFound == null)
-            {
-                return false;
-            }
-            await _tableRepo.DeleteTableAsync(tableId);
-            return true;
-
-        }
 
         public async Task<List<TableGetDTO>> GetAllTableAsync()
         {
@@ -68,8 +57,8 @@ namespace WeddingInvite.Api.Services.Implemetations
 
         public async Task<bool> UpdateTableAsync(TableUpdateDTO tableUpdateDTO)
         {
-           var existingTable = await _tableRepo.GetTableByIdAsync(tableUpdateDTO.Id);
-            if(existingTable == null)
+            var existingTable = await _tableRepo.GetTableByIdAsync(tableUpdateDTO.Id);
+            if (existingTable == null)
             {
                 return false;
             }
@@ -80,6 +69,14 @@ namespace WeddingInvite.Api.Services.Implemetations
             return true;
 
 
+        }
+
+        public async Task<bool> DeleteTableAsync(int id)
+        {
+            if (!await _tableRepo.ExistsAsync(id)) return false;
+            if (await _tableRepo.IsInUseAsync(id)) throw new InvalidOperationException("Cannot delete this table because it is used by guests or bookings");
+            return await _tableRepo.DeleteTableAsync(id);
+            
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Client;
 using WeddingInvite.Api.DTOs.MenuItemDTO;
 using WeddingInvite.Api.Services.Interfaces;
 
@@ -11,11 +12,13 @@ namespace WeddingInvite.Api.Controllers
     public class MenuController : ControllerBase
     {
         private readonly IMenuService _menuService;
-        public MenuController(IMenuService menuService)
+        private readonly ILogger <MenuController> _logger;
+        public MenuController(IMenuService menuService, ILogger<MenuController> logger)
         {
             _menuService = menuService;
+            _logger = logger;
         }
-
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -29,10 +32,12 @@ namespace WeddingInvite.Api.Controllers
             var item = await _menuService.GetItemByIdAsync(id);
             if (item == null)
             {
+                _logger.LogWarning("Menu item with ID {Id}", id);
                 return NotFound();
             }
             return Ok(item);
         }
+
 
         [HttpPost]
         public async Task<IActionResult> AddItem([FromBody] MenuItemCreateDTO menuItemDto)
@@ -45,6 +50,7 @@ namespace WeddingInvite.Api.Controllers
             var newItemId = await _menuService.AddItemAsync(menuItemDto);
             return CreatedAtAction(nameof(GetById), new { id = newItemId }, new { Id = newItemId });
         }
+
         [HttpPut("{id:int}")]
         public async Task<IActionResult> UpdateItem(int id, [FromBody] MenuItemUpdateDTO menuItemUpdateDto)
         {
@@ -52,6 +58,7 @@ namespace WeddingInvite.Api.Controllers
             {
                 return BadRequest(ModelState);
             }
+
             if(id != menuItemUpdateDto.Id) return BadRequest("Id in URL does not match Id in body");
 
             var findItem = await _menuService.UpdateItemAsync(menuItemUpdateDto);

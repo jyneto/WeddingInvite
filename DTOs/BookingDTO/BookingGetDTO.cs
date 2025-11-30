@@ -8,7 +8,13 @@ namespace WeddingInvite.Api.DTOs.BookingDTO
         [Required]
         public int TableId { get; set; }
         [Required]
+        public int TableNumber { get; set; }
+
+        [Required]
         public int GuestId { get; set; }
+
+        [Required]
+        public string? GuestName { get; set; }
         [Required]
         public DateTime StartTime { get; set; }
         [Required]

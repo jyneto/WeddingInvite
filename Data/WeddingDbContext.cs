@@ -23,9 +23,10 @@ namespace WeddingInvite.Api.Data
                  .HasColumnType("decimal(18,2)");
 
             modelBuilder.Entity<Guest>()
-            .HasIndex(e => e.Email)
-            .IsUnique();
-
+            .HasOne(g => g.Table)
+            .WithMany(t => t.Guests)
+            .HasForeignKey(g => g.TableId)
+            .IsRequired(false);
 
             modelBuilder.Entity<Table>()
                 .HasIndex(t => t.TableNumber)

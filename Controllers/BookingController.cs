@@ -1,22 +1,50 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using WeddingInvite.Api.Models;
-using WeddingInvite.Api.DTOs.BookingDTO;
-using WeddingInvite.Api.Services.Interfaces;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
-using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WeddingInvite.Api.DTOs.BookingDTO;
+using WeddingInvite.Api.Models;
+using WeddingInvite.Api.Services.Implemetations;
+using WeddingInvite.Api.Services.Interfaces;
 
 namespace WeddingInvite.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    [Authorize(Roles ="Admin")]
+    [Route("api/bookings")]
+    //[Route("api/[controller]")]
+    [Authorize(Roles = "Admin")]
     public class BookingController : ControllerBase
     {
         private readonly IBookingService _bookingService;
         public BookingController(IBookingService bookingService)
         {
             _bookingService = bookingService;
+        }
+        [AllowAnonymous]
+        [HttpPost("rsvp")]
+        public async Task<IActionResult> CreateRsvpWithBooking([FromBody] RsvpBookingRequestDTO dto)
+        { 
+            if(!ModelState.IsValid) return BadRequest(ModelState);
+
+            try 
+            { 
+                var bookingId = await _bookingService.AddRsvpWithBookingAsync(dto);
+                var booking = await _bookingService.GetBookingByIdAsync(bookingId);
+                return CreatedAtAction(nameof(GetBookingById), new { id = bookingId }, booking);
+
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(ex.Message);
+            }
+            catch (DbUpdateException)
+            {
+                return Conflict("Could not create the booking due to a data conflict");
+            }
         }
 
         [HttpPost]
@@ -37,11 +65,11 @@ namespace WeddingInvite.Api.Controllers
             {
                 return Conflict(ex.Message);
             }
-            catch(DbUpdateException)
+            catch (DbUpdateException)
             {
                 return Conflict("Could not create the booking due to a data conflict");
             }
-            
+
         }
 
         [HttpGet("{id:int}")]
@@ -55,18 +83,30 @@ namespace WeddingInvite.Api.Controllers
             return Ok(booking);
         }
 
+        [Authorize(Roles = "Admin")]
+        [HttpGet]
+        public async Task<IActionResult> GetAllBookingsAsync()
+        {
+            var bookings = await _bookingService.GetAllBookingsAsync();
+            if (bookings == null)
+            {
+                return NotFound();
+            }
+            return Ok(bookings);
+        }
+
         [HttpPut("{id:int}")]
         public async Task<IActionResult> UpdateBooking(int id, [FromBody] BookingGetDTO bookingUpdateDTO)
         {
 
-            if(!ModelState.IsValid) return BadRequest(ModelState);
- 
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
             if (id != bookingUpdateDTO.Id)
             {
                 return BadRequest("ID mismatch");
             }
 
-            try 
+            try
             {
                 var result = await _bookingService.UpdateBookingAsync(id, bookingUpdateDTO);
                 if (!result)
@@ -83,11 +123,24 @@ namespace WeddingInvite.Api.Controllers
             {
                 return Conflict(ex.Message);
             }
-            catch(DbUpdateException)
+            catch (DbUpdateException)
             {
                 return Conflict("Could not update the booking due to a data conflict");
             }
         }
+
+
+        [AllowAnonymous]
+        [HttpPost("available")]
+        public async Task<IActionResult> GetAvailableTables([FromBody] AvailabilityRequestDTO availabilityDTO)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+
+            var availableTables = await _bookingService.GetAvailableTablesAsync(availabilityDTO);
+            return Ok(availableTables);
+        }
+
 
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteBooking(int id)
@@ -99,17 +152,6 @@ namespace WeddingInvite.Api.Controllers
             }
             return NoContent();
         }
-
-        [AllowAnonymous]
-        [HttpPost("available")]
-        public async Task<IActionResult> GetAvailableTables([FromBody] AvailabilityRequestDTO availabilityDTO)
-        {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-
-
-            var availableTables = await _bookingService.GetAvailableTablesAsync(availabilityDTO);
-            return Ok(availableTables);
-        } 
 
     }
 }

@@ -13,6 +13,25 @@ namespace WeddingInvite.Api.Repositories.Implementations
             _context = context;
         }
 
+        public async Task<bool> BookingOverlapAsync(int tableId, DateTime start, DateTime end, int? excludeBookingId = null)
+        {
+           return await _context.Bookings.AnyAsync(b =>
+           b.FK_TableId == tableId &&
+           (excludeBookingId == null || b.Id != excludeBookingId.Value) &&
+           b.StartTime < end &&
+           start < b.EndTime);
+        }
+        public async Task<int> UsedSeatsAsync(int tableId, DateTime start, DateTime end, int? excludeBookingId = null)
+        {
+          return await _context.Bookings
+                .Where(b => b.FK_TableId == tableId &&
+                (excludeBookingId == null || b.Id != excludeBookingId.Value) &&
+                b.StartTime < end &&
+                start < b.EndTime)
+                .SumAsync(b => (int?)b.PartySize)
+                .ContinueWith(t => t.Result ?? 0);
+
+        }
         public async Task<int> AddBookingAsync(Booking booking)
         {
             _context.Bookings.Add(booking);
@@ -35,15 +54,20 @@ namespace WeddingInvite.Api.Repositories.Implementations
 
         public async Task<List<Booking>> GetAllBookingsAsync()
         {
-            var bookings = await _context.Bookings.ToListAsync();
-            return bookings;
+           
+            return await _context.Bookings
+                .Include(b => b.Table)
+                .Include(b => b.Guest)
+                .ToListAsync();
         }
 
-        public Task<Booking?> GetByIdAsync(int id)
-        {   
-            var booking =  _context.Bookings
+        public async Task<Booking?> GetByIdAsync(int id)
+        {
+
+            return await _context.Bookings
+              .Include(b => b.Table)
+                .Include(b => b.Guest)
                 .FirstOrDefaultAsync(b => b.Id == id);
-            return booking;
         }
 
         public async Task<bool> UpdateBookingAsync(Booking booking)
@@ -53,15 +77,6 @@ namespace WeddingInvite.Api.Repositories.Implementations
             return result > 0;
         }
 
-        public async Task<bool> BookingOverlapAsync(int bookingId, DateTime start, DateTime end)
-        {
-
-            return await _context.Bookings
-                .AnyAsync(b => 
-                b.FK_TableId == bookingId && 
-                b.StartTime < end && 
-                start < b.EndTime);
-        }
     }
 }
 

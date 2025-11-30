@@ -21,19 +21,22 @@ namespace WeddingInvite.Api.Services.Implemetations
 
         public async Task<int> AddGuestAsync(GuestCreateDTO guestCreateDTO)
         {
-            var email= guestCreateDTO.Email?.Trim().ToLowerInvariant();
-            if(await _guestRepo.EmailExistAsync(email!))
+            var email = guestCreateDTO.Email?.Trim().ToLowerInvariant();
+            if (await _guestRepo.EmailExistAsync(email!))
                 throw new InvalidOperationException("A guest with the same email already exists.");
 
             var guest = new Guest
             {
                 FullName = guestCreateDTO.FullName?.Trim(),
-                Email = guestCreateDTO.Email!,
+                Email = guestCreateDTO.Email!.Trim().ToLowerInvariant(),
                 Phone = guestCreateDTO.Phone?.Trim(),
                 IsAttending = guestCreateDTO.IsAttending,
-                Allergies = guestCreateDTO.Allergies?.Trim()
+                Allergies = guestCreateDTO.Allergies?.Trim(),
+                TableId = null
             };
-            return await _guestRepo.AddGuestAsync(guestCreateDTO);
+            await _guestRepo.AddGuestAsync(guest);
+            return guest.Id;
+
         }
 
         public async Task<List<GuestGetDTO>> GetAllGuestAsync()
@@ -46,7 +49,10 @@ namespace WeddingInvite.Api.Services.Implemetations
                 Email = g.Email,
                 Phone = g.Phone,
                 IsAttending = g.IsAttending,
-                Allergies = g.Allergies
+                Allergies = g.Allergies,
+                TableId = g.TableId,
+                TableNumber = g.Table != null? g.Table.TableNumber : (int?)null
+
             }).ToList();
         }
 
@@ -57,7 +63,7 @@ namespace WeddingInvite.Api.Services.Implemetations
                 if (guest == null)
                 {
                     return null;
-                }
+                } 
             var  guesDTos = new GuestGetDTO
             {
                 Id = guest.Id,
@@ -65,7 +71,10 @@ namespace WeddingInvite.Api.Services.Implemetations
                 Email = guest.Email,
                 Phone = guest.Phone,
                 IsAttending = guest.IsAttending,
-                Allergies = guest.Allergies
+                Allergies = guest.Allergies,
+                TableId = guest.TableId,
+                TableNumber = guest.Table != null ? guest.Table.TableNumber : (int?)null
+
             };
 
             return guesDTos;
@@ -83,6 +92,7 @@ namespace WeddingInvite.Api.Services.Implemetations
             existingGuest.Phone = guestUpdateDTO.Phone;
             existingGuest.IsAttending = guestUpdateDTO.IsAttending;
             existingGuest.Allergies = guestUpdateDTO.Allergies;
+            existingGuest.TableId = guestUpdateDTO.TableId;
         
             return await _guestRepo.UpdateGuestAsync(existingGuest);
 

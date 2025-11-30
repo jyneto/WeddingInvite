@@ -6,7 +6,7 @@ using WeddingInvite.Api.Services.Interfaces;
 namespace WeddingInvite.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/tables")]
     [Authorize(Roles = "Admin")]
     public class TableController : ControllerBase   
     {
@@ -53,7 +53,7 @@ namespace WeddingInvite.Api.Controllers
             if (id != tableDto.Id)
                 return BadRequest("ID mismatch");
 
-            var isUpdated = await _tableService.UpdateTableAsync(tableDto);
+            var isUpdated = await _tableService.UpdateTableAsync(tableDto); 
             if (!isUpdated)
             {
                 return NotFound("Table not found , update failed");
@@ -64,12 +64,17 @@ namespace WeddingInvite.Api.Controllers
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteTable(int id)
         {
-            var isDeleted = await _tableService.DeleteTableAsync(id);
-            if (!isDeleted)
+            try
             {
-                return NotFound("Table not found , delete failed");
+                var ok = await _tableService.DeleteTableAsync(id);
+                if (!ok) return NotFound();            
+                return NoContent();                   
             }
-            return NoContent();
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(ex.Message);          
+            }
         }
+
     }
 }

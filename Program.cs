@@ -44,6 +44,20 @@ namespace WeddingInvite.Api
             builder.Services.AddScoped<ITableService, TableService>();
             builder.Services.AddScoped<IMenuService, MenuService>();
 
+            //CORS
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("SpaCors", p =>
+                p.WithOrigins(
+                     "https://localhost:5173", // React dev
+                     "http://localhost:5039", // MVC host (optional)
+                     "https://your-react-prod.example.com" // React prod
+                     )
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials()
+                );
+            });
 
             builder.Services.AddControllers();
             builder.Services.AddOpenApi();
@@ -110,7 +124,11 @@ namespace WeddingInvite.Api
 
             builder.Services.AddAuthorization();
 
-
+            builder.Services.AddCors(o => o.AddPolicy("AllowReact",
+              p => p.WithOrigins("http://localhost:5173")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+            ));
 
             var app = builder.Build();
 
@@ -140,11 +158,13 @@ namespace WeddingInvite.Api
 
             app.UseHttpsRedirection();
 
+            app.UseCors("SpaCors");
+
             app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllers();
-
+            app.UseCors("AllowReact");
             app.Run();
         }
     }

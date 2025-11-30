@@ -1,4 +1,5 @@
 ﻿using WeddingInvite.Api.DTOs.BookingDTO;
+using WeddingInvite.Api.DTOs.TableDTO;
 
 namespace WeddingInvite.Api.Services.Interfaces
 {
@@ -10,5 +11,6 @@ namespace WeddingInvite.Api.Services.Interfaces
         Task<bool> UpdateBookingAsync(int id, BookingGetDTO bookingRequestDTO);
         Task<bool> DeleteBookingAsync(int id);
         Task<List<AvailableTableDTO>> GetAvailableTablesAsync(AvailabilityRequestDTO availabilityRequestDTO);
+        Task<int> AddRsvpWithBookingAsync(RsvpBookingRequestDTO dto);
     }
 }

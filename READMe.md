@@ -31,39 +31,102 @@ A .NET 9 Web API for managing wedding invitations, guests, tables, and bookings.
 5. **Run the API:**
 	dotnet run
 
-## API Endpoints
+# WeddingInvite.Api — Migration Notes & Rationale
 
-- `api/admin/guest` - Manage guests (GET, POST, PUT, DELETE)
-- `api/table` - Manage tables (GET, POST, PUT, DELETE)
-- `api/booking` - Manage bookings (GET, POST, PUT, DELETE)
-
-All endpoints require authentication and the `Admin` role.
-
-## Improvements Needed
-
-- Add comprehensive unit and integration tests.
-- Improve error handling and validation messages.
-- Add Swagger/OpenAPI documentation.
-- Implement logging and monitoring.
-- Refactor for better separation of concerns if needed.
-- Add user management and roles beyond admin.
-- Seed initial data for development/testing.
-- Consider using SecuritySchemeType.APIKey or OAuth2 for better security.
-- Refresh token for better security.
-
-## Known Issues
-
-- Some DTOs may lack required properties for certain operations.
-- Table and guest assignment logic may need refinement for edge cases.
-
-## Contributing
-
-Pull requests are welcome! Please open issues for bugs or feature requests.
-
-## License
-
-MIT License
+This repository was transitioned from a simple table booking sample into a focused wedding invitation management API. The changes preserve the original assignment goals (CRUD, validation, booking rules) while adding RSVP flows, authentication, and stronger validation so the app meets the assignment requirements and real-world edge cases.
 
 ---
 
-*For questions or suggestions, please open an issue on GitHub.*
+## High level summary of changes
+
+- New domain focus: wedding invitation management (guests, tables, bookings, optional menu).
+- Authentication: JWT-based auth added with `AuthController` (login / token issuing).
+- Controllers:
+  - `AdminGuestController` — admin CRUD for guests
+  - `GuestController` — public RSVP endpoint and guest lookup
+  - `BookingController` — booking creation / query / update / delete (booking logic preserved)
+  - `TableController`, `MenuController` — manage tables and menu items
+- Services & Repositories refactor:
+  - Split into service and repository layers per entity (`Guest`, `Table`, `Booking`, `Menu`, `Auth`)
+  - Added repository methods used by service business rules: email uniqueness, booking overlap checks, used seats, table usage checks
+- DTOs and validation:
+  - Stronger validation attributes in DTOs (e.g., `BookingCreateDTO`, `GuestCreateDTO`)
+  - `GuestCreateDTO` implements `IValidatableObject` to require `TableId` when `IsAttending=true`
+- Booking logic preserved and improved:
+  - Booking overlap detection (`BookingOverlapAsync`)
+  - Seat accounting (`UsedSeatsAsync`) and remaining-seat checks before creating/updating bookings
+  - `GetAvailableTablesAsync` computes availability per time slot
+- DB / Models:
+  - `WeddingDbContext` (renamed/updated) with relationships between `Guest` and `Table`
+  - Models updated to include FK navigation and required fields
+- Fix for the reported issue:
+  - Guest creation now validates table existence and capacity before saving when `IsAttending = true`. This prevents guests from being persisted when a requested table is unavailable or booking validation fails.
+
+---
+
+## Why this still satisfies the original assignment criteria
+
+The assignment asked for a system that supports:
+- CRUD operations for entities — implemented via Controllers + Services + Repositories for Guests, Tables, Bookings, Menu.
+- Validation and business rules — DTO validation and service-layer checks enforce required rules:
+  - Table capacity checks (guest & booking)
+  - Booking overlap prevention
+  - Email uniqueness for guests
+- Data persistence — implemented with EF Core; repository layer abstracts DB access; migrations included.
+- Web API surface — RESTful endpoints provided for each main entity.
+- Authentication & authorization — admin-restricted endpoints and public RSVP endpoint implemented.
+
+All core functional requirements remain implemented, and additional validation and authentication strengthen correctness and security without violating the assignment scope.
+
+---
+
+## Notable implementation details (short)
+
+- Booking rules:
+  - Slot duration is read from `EventPolicy` and applied consistently.
+  - Times normalized to UTC before validation.
+  - Overlap check: bookings overlap if `existing.Start < newEnd && newStart < existing.End`.
+  - Seat accounting uses a SUM of overlapping bookings to decide remaining seats.
+
+- Guest/RSVP behavior:
+  - `GuestCreateDTO` requires `TableId` if `IsAttending` is true (validated on the DTO and again in service).
+  - `GuestService` now checks `ITableRespiratory.GetByIdAsync(...)` and `IGuestRepository.CountByTableAsync(...)` before persisting an attending guest to prevent saving when the table is full.
+  - If you require atomic creation of guest + booking in a single request that rolls back both on failure, implement a single endpoint and wrap operations in a DB transaction.
+
+- Dependency Injection:
+  - `GuestService` constructor now depends on `ITableRespiratory` in addition to `IGuestRepository`. Update DI registration in `Program.cs` accordingly.
+
+---
+
+## Run / Setup (quick)
+
+1. Restore dependencies:
+   - `dotnet restore`
+2. Apply EF migrations / update DB:
+   - __dotnet ef database update__
+3. Run:
+   - `dotnet run` or use Visual Studio -> __Debug > Start Debugging__
+4. Use Swagger (if enabled) or call endpoints directly.
+
+Files to inspect for startup & DI:
+- `Program.cs` — DI, authentication, swagger, CORS
+- `appsettings.json` — JWT settings, connection string
+- `WeddingDbContext` — DbSets and relationships
+
+---
+
+## Endpoints (examples)
+- `POST /api/guest` — public RSVP (validates table if `IsAttending = true`)
+- `GET /api/admin/guest` — admin: list all guests
+- `POST /api/bookings` — create booking (admin)
+- `POST /api/bookings/available` — check table availability for a time slot
+- `POST /api/auth/login` — obtain JWT token
+
+(See controllers for exact routes and required DTOs.)
+
+---
+
+## Known limitations & recommendations
+- Improve error messages if you want more user-friendly responses in a UI.
+
+
